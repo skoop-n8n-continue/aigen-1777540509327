@@ -7,12 +7,12 @@
     <title>Stock Pulse - Real-Time Market Tracker</title>
     <style>
         :root {
-            --bg-color: #10181f;
-            --primary-color: #00b7af;
+            --bg-color: #0d1117;
+            --primary-color: #00e676;
             --text-color: #ffffff;
-            --secondary-text: #6a7071;
-            --up-color: #26a69a;
-            --down-color: #ef5350;
+            --secondary-text: #8b949e;
+            --up-color: #00e676;
+            --down-color: #ff5252;
             --card-bg: rgba(255, 255, 255, 0.05);
         }
 
@@ -287,7 +287,7 @@
 
             return `
                 <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
-                    <polyline points="${points}" stroke="${isUp ? '#26a69a' : '#ef5350'}" />
+                    <polyline points="${points}" stroke="${isUp ? 'var(--up-color)' : 'var(--down-color)'}" />
                 </svg>
             `;
         }
