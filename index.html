@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Pulse - Real-Time Market Tracker</title>
+    <style>
+        :root {
+            --bg-color: #10181f;
+            --primary-color: #00b7af;
+            --text-color: #ffffff;
+            --secondary-text: #6a7071;
+            --up-color: #26a69a;
+            --down-color: #ef5350;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--primary-color);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .time-container {
+            text-align: right;
+        }
+
+        #current-time {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        #current-date {
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+
+        main {
+            flex: 1;
+            padding: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            overflow-y: auto;
+            align-content: start;
+        }
+
+        .stock-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stock-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--secondary-text);
+        }
+
+        .stock-card.up::before { background: var(--up-color); }
+        .stock-card.down::before { background: var(--down-color); }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .symbol {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-color);
+        }
+
+        .name {
+            font-size: 14px;
+            color: var(--secondary-text);
+            margin-top: 4px;
+        }
+
+        .price-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .price {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .change {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .change.up { color: var(--up-color); }
+        .change.down { color: var(--down-color); }
+
+        .chart-placeholder {
+            margin-top: 20px;
+            height: 60px;
+            width: 100%;
+            position: relative;
+        }
+
+        .sparkline {
+            width: 100%;
+            height: 100%;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        footer {
+            height: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ticker-wrap {
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .ticker-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker 30s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-block;
+            padding: 0 30px;
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+
+        .ticker-item span {
+            color: var(--text-color);
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .ticker-item.up span { color: var(--up-color); }
+        .ticker-item.down span { color: var(--down-color); }
+
+        @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* Responsive adjustments for signage */
+        @media (max-aspect-ratio: 1/1) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            </div>
+            <h1>STOCK PULSE</h1>
+        </div>
+        <div class="time-container">
+            <div id="current-time">12:00:00 PM</div>
+            <div id="current-date">Thursday, April 30, 2026</div>
+        </div>
+    </header>
+
+    <main id="stock-grid">
+        <!-- Stock cards will be injected here -->
+    </main>
+
+    <footer>
+        <div class="ticker-wrap">
+            <div class="ticker-content" id="bottom-ticker">
+                <!-- Ticker items will be injected here -->
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const STOCKS = [
+            { symbol: 'AAPL', name: 'Apple Inc.' },
+            { symbol: 'MSFT', name: 'Microsoft Corp.' },
+            { symbol: 'GOOGL', name: 'Alphabet Inc.' },
+            { symbol: 'AMZN', name: 'Amazon.com Inc.' },
+            { symbol: 'TSLA', name: 'Tesla Inc.' },
+            { symbol: 'NVDA', name: 'NVIDIA Corp.' },
+            { symbol: 'META', name: 'Meta Platforms' },
+            { symbol: 'BRK.B', name: 'Berkshire Hathaway' }
+        ];
+
+        // State to keep track of prices and history for sparklines
+        const stockState = STOCKS.map(stock => ({
+            ...stock,
+            price: 150 + Math.random() * 200,
+            change: 0,
+            changePercent: 0,
+            history: Array.from({length: 20}, () => 150 + Math.random() * 200)
+        }));
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString();
+            document.getElementById('current-date').textContent = now.toLocaleDateString(undefined, {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+        }
+
+        function createSparkline(history, isUp) {
+            const min = Math.min(...history);
+            const max = Math.max(...history);
+            const range = max - min;
+            const width = 200;
+            const height = 60;
+
+            const points = history.map((p, i) => {
+                const x = (i / (history.length - 1)) * width;
+                const y = height - ((p - min) / range) * height;
+                return `${x},${y}`;
+            }).join(' ');
+
+            return `
+                <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+                    <polyline points="${points}" stroke="${isUp ? '#26a69a' : '#ef5350'}" />
+                </svg>
+            `;
+        }
+
+        function renderStocks() {
+            const grid = document.getElementById('stock-grid');
+            const ticker = document.getElementById('bottom-ticker');
+
+            grid.innerHTML = '';
+            ticker.innerHTML = '';
+
+            stockState.forEach(stock => {
+                const isUp = stock.change >= 0;
+                const card = document.createElement('div');
+                card.className = `stock-card ${isUp ? 'up' : 'down'}`;
+
+                card.innerHTML = `
+                    <div class="stock-header">
+                        <div>
+                            <div class="symbol">${stock.symbol}</div>
+                            <div class="name">${stock.name}</div>
+                        </div>
+                        <div class="price-container">
+                            <div class="price">$${stock.price.toFixed(2)}</div>
+                            <div class="change ${isUp ? 'up' : 'down'}">
+                                ${isUp ? '▲' : '▼'} ${Math.abs(stock.change).toFixed(2)} (${stock.changePercent.toFixed(2)}%)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">
+                        ${createSparkline(stock.history, isUp)}
+                    </div>
+                `;
+                grid.appendChild(card);
+
+                // Add to ticker
+                const tickerItem = document.createElement('div');
+                tickerItem.className = `ticker-item ${isUp ? 'up' : 'down'}`;
+                tickerItem.innerHTML = `${stock.symbol} <span>${isUp ? '▲' : '▼'} $${stock.price.toFixed(2)}</span>`;
+                ticker.appendChild(tickerItem);
+            });
+
+            // Duplicate ticker items for seamless loop
+            const items = ticker.innerHTML;
+            ticker.innerHTML += items + items;
+        }
+
+        function simulatePriceMovement() {
+            stockState.forEach(stock => {
+                const volatility = 0.002; // 0.2% max change per tick
+                const move = stock.price * (Math.random() - 0.5) * volatility;
+                stock.change = move;
+                stock.changePercent = (move / stock.price) * 100;
+                stock.price += move;
+                stock.history.push(stock.price);
+                if (stock.history.length > 20) stock.history.shift();
+            });
+            renderStocks();
+        }
+
+        // Initialize
+        setInterval(updateClock, 1000);
+        updateClock();
+        renderStocks();
+
+        // Simulate updates every 3 seconds for that "live" feel
+        setInterval(simulatePriceMovement, 3000);
+    </script>
+</body>
+</html>
