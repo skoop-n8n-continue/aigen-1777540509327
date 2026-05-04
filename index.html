@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="./manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Pulse - Real-Time Market Tracker</title>
+    <title>Stock Pulse Pro - Market Intelligence Dashboard</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -14,13 +14,14 @@
             --up-color: #00e676;
             --down-color: #ff5252;
             --card-bg: rgba(255, 255, 255, 0.05);
+            --sidebar-width: 320px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
@@ -34,12 +35,14 @@
         }
 
         header {
-            padding: 20px 40px;
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            z-index: 100;
         }
 
         .logo {
@@ -49,235 +52,387 @@
         }
 
         .logo h1 {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 1px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
             color: var(--primary-color);
         }
 
         .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--primary-color);
-            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary-color), #00a856);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 230, 118, 0.3);
         }
 
-        .time-container {
-            text-align: right;
-        }
-
-        #current-time {
-            font-size: 20px;
-            font-weight: 500;
-        }
-
-        #current-date {
-            font-size: 14px;
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
             color: var(--secondary-text);
         }
 
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--up-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.5; transform: scale(0.9); }
+        }
+
+        .dashboard-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Main Grid Area */
         main {
             flex: 1;
-            padding: 40px;
+            padding: 24px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
             overflow-y: auto;
             align-content: start;
         }
 
+        /* Sidebar for Intelligence */
+        aside {
+            width: var(--sidebar-width);
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            gap: 30px;
+            overflow-y: hidden;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--secondary-text);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
         .stock-card {
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .stock-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--secondary-text);
-        }
-
-        .stock-card.up::before { background: var(--up-color); }
-        .stock-card.down::before { background: var(--down-color); }
+        .stock-card.up { border-bottom: 2px solid var(--up-color); }
+        .stock-card.down { border-bottom: 2px solid var(--down-color); }
 
         .stock-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .symbol {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--text-color);
+            font-size: 24px;
+            font-weight: 900;
+            line-height: 1;
         }
 
         .name {
-            font-size: 14px;
+            font-size: 12px;
             color: var(--secondary-text);
             margin-top: 4px;
-        }
-
-        .price-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .price {
-            font-size: 32px;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 4px;
+            text-align: right;
         }
 
         .change {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            text-align: right;
+            margin-top: 4px;
         }
 
-        .change.up { color: var(--up-color); }
-        .change.down { color: var(--down-color); }
+        .stock-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-        .chart-placeholder {
-            margin-top: 20px;
-            height: 60px;
-            width: 100%;
-            position: relative;
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--secondary-text);
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            margin-top: 15px;
+            height: 50px;
         }
 
         .sparkline {
             width: 100%;
             height: 100%;
-            stroke-width: 2;
-            fill: none;
+        }
+
+        /* News Widget */
+        .news-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow: hidden;
+        }
+
+        .news-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .news-tag {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .news-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #eee;
+        }
+
+        .news-time {
+            font-size: 10px;
+            color: var(--secondary-text);
+            margin-top: 8px;
+        }
+
+        /* Market Gauges */
+        .gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 16px;
+            position: relative;
+        }
+
+        .gauge-svg {
+            width: 160px;
+            height: 80px;
+        }
+
+        .gauge-value {
+            font-size: 24px;
+            font-weight: 800;
+            margin-top: -20px;
+        }
+
+        .gauge-label {
+            font-size: 12px;
+            color: var(--secondary-text);
+            margin-top: 5px;
         }
 
         footer {
-            height: 60px;
-            background: rgba(0, 0, 0, 0.3);
+            height: 50px;
+            background: #000;
             display: flex;
             align-items: center;
             overflow: hidden;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .ticker-wrap {
-            width: 100%;
-            white-space: nowrap;
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 40px;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .ticker-item.up { color: var(--up-color); }
+        .ticker-item.down { color: var(--down-color); }
+
+        .ticker-item .price-label { color: #fff; margin-left: 5px; }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
 
         .ticker-content {
-            display: inline-block;
-            padding-left: 100%;
-            animation: ticker 30s linear infinite;
+            display: flex;
+            animation: ticker 40s linear infinite;
         }
 
-        .ticker-item {
-            display: inline-block;
-            padding: 0 30px;
-            font-size: 14px;
-            color: var(--secondary-text);
-        }
+        /* Transitions */
+        .up { color: var(--up-color); }
+        .down { color: var(--down-color); }
 
-        .ticker-item span {
-            color: var(--text-color);
-            font-weight: 600;
-            margin-left: 8px;
-        }
-
-        .ticker-item.up span { color: var(--up-color); }
-        .ticker-item.down span { color: var(--down-color); }
-
-        @keyframes ticker {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-
-        /* Responsive adjustments for signage */
-        @media (max-aspect-ratio: 1/1) {
-            main {
-                grid-template-columns: 1fr;
-            }
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
     </style>
 </head>
 <body>
     <header>
         <div class="logo">
             <div class="logo-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
             </div>
-            <h1>STOCK PULSE</h1>
+            <h1>STOCK PULSE <span style="font-weight: 300; opacity: 0.7;">PRO</span></h1>
         </div>
-        <div class="time-container">
-            <div id="current-time">12:00:00 PM</div>
-            <div id="current-date">Thursday, April 30, 2026</div>
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            <span id="market-status">MARKET OPEN</span>
+            <span style="opacity: 0.3; margin: 0 5px;">|</span>
+            <span id="header-time">09:30:00 AM</span>
         </div>
     </header>
 
-    <main id="stock-grid">
-        <!-- Stock cards will be injected here -->
-    </main>
+    <div class="dashboard-container">
+        <main id="stock-grid">
+            <!-- Stock cards injected here -->
+        </main>
+
+        <aside>
+            <div class="market-intelligence">
+                <div class="section-title">Market Sentiment</div>
+                <div class="gauge-container">
+                    <svg class="gauge-svg" viewBox="0 0 100 50">
+                        <path d="M10 45 A 40 40 0 0 1 90 45" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" stroke-linecap="round"/>
+                        <path id="gauge-needle-track" d="M10 45 A 40 40 0 0 1 90 45" fill="none" stroke="url(#gauge-gradient)" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="60"/>
+                        <defs>
+                            <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="var(--down-color)" />
+                                <stop offset="50%" stop-color="#FFC107" />
+                                <stop offset="100%" stop-color="var(--up-color)" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="gauge-value" id="sentiment-value">58</div>
+                    <div class="gauge-label" id="sentiment-label">GREED</div>
+                </div>
+            </div>
+
+            <div class="news-section">
+                <div class="section-title">
+                    Live Intel
+                    <span style="font-size: 10px; color: var(--primary-color);">• REC</span>
+                </div>
+                <div class="news-container" id="news-feed">
+                    <!-- News items injected here -->
+                </div>
+            </div>
+        </aside>
+    </div>
 
     <footer>
-        <div class="ticker-wrap">
-            <div class="ticker-content" id="bottom-ticker">
-                <!-- Ticker items will be injected here -->
-            </div>
+        <div class="ticker-content" id="bottom-ticker">
+            <!-- Ticker items injected here -->
         </div>
     </footer>
 
     <script>
         const STOCKS = [
-            { symbol: 'AAPL', name: 'Apple Inc.' },
-            { symbol: 'MSFT', name: 'Microsoft Corp.' },
-            { symbol: 'GOOGL', name: 'Alphabet Inc.' },
-            { symbol: 'AMZN', name: 'Amazon.com Inc.' },
-            { symbol: 'TSLA', name: 'Tesla Inc.' },
-            { symbol: 'NVDA', name: 'NVIDIA Corp.' },
-            { symbol: 'META', name: 'Meta Platforms' },
-            { symbol: 'BRK.B', name: 'Berkshire Hathaway' }
+            { symbol: 'AAPL', name: 'Apple Inc.', cap: '3.2T', pe: '28.4' },
+            { symbol: 'MSFT', name: 'Microsoft Corp.', cap: '3.1T', pe: '35.1' },
+            { symbol: 'GOOGL', name: 'Alphabet Inc.', cap: '2.0T', pe: '24.2' },
+            { symbol: 'AMZN', name: 'Amazon.com', cap: '1.9T', pe: '42.8' },
+            { symbol: 'TSLA', name: 'Tesla Inc.', cap: '580B', pe: '62.4' },
+            { symbol: 'NVDA', name: 'NVIDIA Corp.', cap: '2.4T', pe: '75.2' },
+            { symbol: 'META', name: 'Meta Platforms', cap: '1.2T', pe: '24.9' },
+            { symbol: 'NFLX', name: 'Netflix Inc.', cap: '260B', pe: '31.5' },
+            { symbol: 'AMD', name: 'Advanced Micro', cap: '250B', pe: '180.2' },
+            { symbol: 'BTC/USD', name: 'Bitcoin', cap: '1.3T', pe: 'N/A' }
         ];
 
-        // State to keep track of prices and history for sparklines
-        const stockState = STOCKS.map(stock => ({
+        const NEWS_DATA = [
+            { tag: 'TECH', title: 'NVDA announces new Blackwell chips, stock surges 4%', color: '#3f51b5' },
+            { tag: 'MARKET', title: 'Federal Reserve hints at potential rate cuts in Q4', color: '#ff9800' },
+            { tag: 'CRYPTO', title: 'Bitcoin ETFs see record $2B inflow in single week', color: '#f44336' },
+            { tag: 'ECON', title: 'Global trade volume hits all-time high despite tensions', color: '#4caf50' },
+            { tag: 'AUTO', title: 'EV adoption reaches 15% of all US vehicle sales', color: '#00bcd4' },
+            { tag: 'AI', title: 'Generative AI adds $4.4T to global economy: Report', color: '#9c27b0' }
+        ];
+
+        let stockState = STOCKS.map(stock => ({
             ...stock,
-            price: 150 + Math.random() * 200,
+            price: 150 + Math.random() * 800,
             change: 0,
             changePercent: 0,
-            history: Array.from({length: 20}, () => 150 + Math.random() * 200)
+            history: Array.from({length: 24}, () => 150 + Math.random() * 800)
         }));
 
-        function updateClock() {
+        function updateTime() {
             const now = new Date();
-            document.getElementById('current-time').textContent = now.toLocaleTimeString();
-            document.getElementById('current-date').textContent = now.toLocaleDateString(undefined, {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-            });
+            document.getElementById('header-time').textContent = now.toLocaleTimeString();
         }
 
         function createSparkline(history, isUp) {
             const min = Math.min(...history);
             const max = Math.max(...history);
-            const range = max - min;
+            const range = max - min || 1;
             const width = 200;
-            const height = 60;
+            const height = 50;
 
             const points = history.map((p, i) => {
                 const x = (i / (history.length - 1)) * width;
@@ -287,12 +442,12 @@
 
             return `
                 <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
-                    <polyline points="${points}" stroke="${isUp ? 'var(--up-color)' : 'var(--down-color)'}" />
+                    <polyline points="${points}" fill="none" stroke="${isUp ? 'var(--up-color)' : 'var(--down-color)'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             `;
         }
 
-        function renderStocks() {
+        function renderDashboard() {
             const grid = document.getElementById('stock-grid');
             const ticker = document.getElementById('bottom-ticker');
 
@@ -310,60 +465,100 @@
                             <div class="symbol">${stock.symbol}</div>
                             <div class="name">${stock.name}</div>
                         </div>
-                        <div class="price-container">
-                            <div class="price">$${stock.price.toFixed(2)}</div>
+                        <div>
+                            <div class="price">$${stock.price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                             <div class="change ${isUp ? 'up' : 'down'}">
-                                ${isUp ? '▲' : '▼'} ${Math.abs(stock.change).toFixed(2)} (${stock.changePercent.toFixed(2)}%)
+                                ${isUp ? '▲' : '▼'} ${Math.abs(stock.changePercent).toFixed(2)}%
                             </div>
                         </div>
                     </div>
-                    <div class="chart-placeholder">
+                    <div class="chart-container">
                         ${createSparkline(stock.history, isUp)}
+                    </div>
+                    <div class="stock-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Market Cap</span>
+                            <span class="stat-value">${stock.cap}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">P/E Ratio</span>
+                            <span class="stat-value">${stock.pe}</span>
+                        </div>
                     </div>
                 `;
                 grid.appendChild(card);
 
-                // Add to ticker
+                // Ticker Item
                 const tickerItem = document.createElement('div');
                 tickerItem.className = `ticker-item ${isUp ? 'up' : 'down'}`;
-                tickerItem.innerHTML = `${stock.symbol} <span>${isUp ? '▲' : '▼'} $${stock.price.toFixed(2)}</span>`;
+                tickerItem.innerHTML = `
+                    ${isUp ? '▲' : '▼'} ${stock.symbol}
+                    <span class="price-label">$${stock.price.toFixed(2)}</span>
+                `;
                 ticker.appendChild(tickerItem);
             });
 
-            // Duplicate ticker items for seamless loop
-            const items = ticker.innerHTML;
-            ticker.innerHTML += items + items;
+            // Double ticker for loop
+            ticker.innerHTML += ticker.innerHTML;
         }
 
-        function simulatePriceMovement() {
+        function updatePrices() {
             stockState.forEach(stock => {
-                const volatility = 0.002; // 0.2% max change per tick
-                const move = stock.price * (Math.random() - 0.5) * volatility;
+                const vol = 0.003;
+                const move = stock.price * (Math.random() - 0.49) * vol; // Slight upward bias
                 stock.change = move;
                 stock.changePercent = (move / stock.price) * 100;
                 stock.price += move;
                 stock.history.push(stock.price);
-                if (stock.history.length > 20) stock.history.shift();
+                if (stock.history.length > 24) stock.history.shift();
             });
-            renderStocks();
+            renderDashboard();
+            updateSentiment();
         }
 
-        // Initialize
-        setInterval(updateClock, 1000);
-        updateClock();
-        renderStocks();
+        function updateSentiment() {
+            const val = 50 + (Math.random() * 20 - 10);
+            const track = document.getElementById('gauge-needle-track');
+            const valEl = document.getElementById('sentiment-value');
+            const labelEl = document.getElementById('sentiment-label');
 
-        // Simulate updates every 3 seconds for that "live" feel
-        setInterval(simulatePriceMovement, 3000);
+            // stroke-dashoffset: 125.6 is full (0%), 0 is 100%
+            const offset = 125.6 - (val / 100 * 125.6);
+            track.style.strokeDashoffset = offset;
+            valEl.textContent = Math.round(val);
+
+            if (val > 60) labelEl.textContent = 'GREED';
+            else if (val < 40) labelEl.textContent = 'FEAR';
+            else labelEl.textContent = 'NEUTRAL';
+        }
+
+        function rotateNews() {
+            const feed = document.getElementById('news-feed');
+            const item = NEWS_DATA[Math.floor(Math.random() * NEWS_DATA.length)];
+
+            const newsHtml = `
+                <div class="news-item">
+                    <span class="news-tag" style="background: ${item.color}">${item.tag}</span>
+                    <div class="news-title">${item.title}</div>
+                    <div class="news-time">JUST NOW</div>
+                </div>
+            `;
+
+            feed.insertAdjacentHTML('afterbegin', newsHtml);
+            if (feed.children.length > 4) {
+                feed.removeChild(feed.lastChild);
+            }
+        }
+
+        // Init
+        setInterval(updateTime, 1000);
+        setInterval(updatePrices, 3000);
+        setInterval(rotateNews, 8000);
+
+        updateTime();
+        updatePrices();
+        rotateNews();
+        rotateNews();
     </script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js')
-          .then(function (reg) { console.log('[PWA] SW registered:', reg.scope); })
-          .catch(function (err) { console.warn('[PWA] SW registration failed:', err); });
-      });
-    }
-  </script>
 </body>
 </html>
