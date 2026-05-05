@@ -50,7 +50,7 @@
         }
 
         body {
-            background-image: url('https://skoop-signage-storage-v2-dev.s3.amazonaws.com/2Jgg7ZkGVReHQ3Qhai5xjSj1cnqQ3Daq_sjm8fqlS3k=_skoop_media_78805a221a988e79ef3f42d7c5bfd418_612609000.jpeg');
+            background-image: linear-gradient(rgba(13, 17, 23, 0.7), rgba(13, 17, 23, 0.7)), url('https://skoop-signage-storage-v2-dev.s3.amazonaws.com/2Jgg7ZkGVReHQ3Qhai5xjSj1cnqQ3Daq_sjm8fqlS3k=_skoop_media_78805a221a988e79ef3f42d7c5bfd418_965824000.jpeg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -63,16 +63,19 @@
             flex-direction: column;
         }
 
-        /* Overlay for better readability on busy backgrounds */
+        /* Glassmorphism containers for better readability */
+        .stock-card, aside, header {
+            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .stock-card {
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        /* Remove old overlay */
         body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(13, 17, 23, 0.7);
-            z-index: -1;
+            display: none;
         }
 
         header {
